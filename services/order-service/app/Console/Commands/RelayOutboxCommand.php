@@ -21,7 +21,7 @@ class RelayOutboxCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(EventPublisher $publisher): int
+    public function handle(): int
     {
         $this->info('Outbox relay iniciado...');
 
@@ -39,7 +39,7 @@ class RelayOutboxCommand extends Command
 
             foreach ($events as $event) {
                 try {
-                    $publisher->publish($event->event_type, $event->payload);
+                    $this->eventPublisher->publish($event->event_type, $event->payload);
 
                     $event->update([
                         'published_at' => now(),
