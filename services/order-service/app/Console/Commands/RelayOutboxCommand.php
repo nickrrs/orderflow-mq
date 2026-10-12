@@ -50,6 +50,7 @@ class RelayOutboxCommand extends Command
 
                     $this->line("Publicado: {$event->id}");
                 } catch (\Throwable $e) {
+                    $hadFailure = true;
                     $event->increment('attempts');
                     $this->error("Falha {$event->id}: {$e->getMessage()}");
                 }
