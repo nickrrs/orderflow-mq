@@ -20,6 +20,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "1025:1025" 
+      - "8025:8025"   # UI → http://localhost:8025
 
 volumes:
   rabbitmq_data:
