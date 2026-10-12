@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orderflow.local/contracts/events/order-created.v1.json",
+  "title": "order.created",
+  "description": "Evento emitido quando um pedido é criado no order-service.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "event_version",
+    "occurred_at",
+    "data"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identificador único do evento. Usado para idempotência no consumidor."
+    },
+    "event_type": {
+      "const": "order.created"
+    },
+    "event_version": {
+      "const": 1,
+      "description": "Versão do contrato. Mudanças incompatíveis exigem v2."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Momento em que o fato de domínio ocorreu (ISO-8601)."
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "order_id",
+        "customer_email",
+        "total_amount",
+        "items"
+      ],
+      "properties": {
+        "order_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "customer_email": {
+          "type": "string",
+          "format": "email"
+        },
+        "total_amount": {
+          "type": ["number", "string"],
+          "description": "Total do pedido. String é aceita porque o cast decimal do Eloquent pode serializar assim."
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["sku", "price", "quantity"],
+            "properties": {
+              "sku": {
+                "type": "string",
+                "minLength": 1
+              },
+              "price": {
+                "type": ["number", "string"],
+                "description": "Preço unitário do item."
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}
