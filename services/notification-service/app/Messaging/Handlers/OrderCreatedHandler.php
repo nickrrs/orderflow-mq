@@ -19,22 +19,41 @@ class OrderCreatedHandler
             return;
         }
 
+        $notification = Notification::firstOrCreate([
+            ['event_id' => $eventId],
+            [
+                'order_id' => $data['order_id'],
+                'customer_email' => $data['customer_email'],
+                'channel' => 'email',
+                'status' => 'pending',
+                'body' => "Pedido #{$data['order_id']} confirmado",
+            ]
+        ]);
+
+        if ($notification && $notification->status === 'sent') {
+            ProcessedEvent::firstOrCreate([
+               ['event_id' => $eventId],
+               [
+                'event_type' => $event['event_type'],
+                'processed_at' => now(),
+               ]
+            ]);
+            return;
+        }
+
         Mail::to($data['customer_email'])->send(new OrderCreatedMail($data));
 
-        DB::transaction(function () use ($event, $eventId, $data) {
-            Notification::create([
-                'event_id'       => $eventId,
-                'order_id'       => $data['order_id'],
-                'customer_email' => $data['customer_email'],
-                'channel'        => 'email',
-                'status'         => 'sent',
-                'body'           => "Pedido #{$data['order_id']} confirmado",
+        DB::transaction(function () use ($notification, $event, $eventId) {
+            $notification->update([
+                'status' => 'sent',
             ]);
 
-            ProcessedEvent::create([
-                'event_id'     => $eventId,
-                'event_type'   => $event['event_type'],
-                'processed_at' => now(),
+            ProcessedEvent::firstOrCreate([
+                ['event_id' => $eventId],
+                [
+                    'event_type' => $event['event_type'],
+                    'processed_at' => now(),
+                ]
             ]);
         });
     }
