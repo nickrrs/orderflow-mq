@@ -37,6 +37,8 @@ class RelayOutboxCommand extends Command
                 continue;
             }
 
+            $hadFailure = false;
+
             foreach ($events as $event) {
                 try {
                     $this->eventPublisher->publish($event->event_type, $event->payload);
@@ -52,6 +54,9 @@ class RelayOutboxCommand extends Command
                     $this->error("Falha {$event->id}: {$e->getMessage()}");
                 }
             }
+
+            sleep($hadFailure ? 5 : 1);
+            // to-do criar uma coluna next_attempt_at para evitar flood de tentativas
         }
     }
 }
