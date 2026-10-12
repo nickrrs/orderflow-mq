@@ -19,7 +19,7 @@ class OrderCreatedHandler
             return;
         }
 
-        $notification = Notification::firstOrCreate([
+        $notification = Notification::firstOrCreate(
             ['event_id' => $eventId],
             [
                 'order_id' => $data['order_id'],
@@ -28,16 +28,16 @@ class OrderCreatedHandler
                 'status' => 'pending',
                 'body' => "Pedido #{$data['order_id']} confirmado",
             ]
-        ]);
+        );
 
         if ($notification && $notification->status === 'sent') {
-            ProcessedEvent::firstOrCreate([
+            ProcessedEvent::firstOrCreate(
                ['event_id' => $eventId],
                [
                 'event_type' => $event['event_type'],
                 'processed_at' => now(),
                ]
-            ]);
+            );
             return;
         }
 
