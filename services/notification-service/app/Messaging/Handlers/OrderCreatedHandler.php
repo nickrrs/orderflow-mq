@@ -48,13 +48,13 @@ class OrderCreatedHandler
                 'status' => 'sent',
             ]);
 
-            ProcessedEvent::firstOrCreate([
+            ProcessedEvent::firstOrCreate(
                 ['event_id' => $eventId],
                 [
                     'event_type' => $event['event_type'],
                     'processed_at' => now(),
-                ]
-            ]);
+                ],
+            );
         });
     }
 }
